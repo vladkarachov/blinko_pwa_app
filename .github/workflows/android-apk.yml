@@ -12,11 +12,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java 17 (required by Android Gradle plugin)
+      - name: Setup Java 21 (required by Capacitor 8 / AGP)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
