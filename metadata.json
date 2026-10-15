@@ -1,0 +1,6 @@
+{
+  "name": "Blinko Offline Client",
+  "description": "An offline-capable progressive web app client for Blinko with local-first IndexedDB storage, auto-sync, fleeting capture, markdown preview, and tag management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
