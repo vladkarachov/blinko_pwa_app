@@ -32,12 +32,11 @@ jobs:
       - name: Capacitor sync
         run: bunx cap sync android
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Build debug APK
         working-directory: android
         run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
