@@ -1,8 +1,6 @@
 # Blinko Offline Client (PWA + Android)
 
-An offline-first mobile/web client for [Blinko](https://github.com/blinkospace/blinko) — the open-source, self-hosted, AI-powered note app. Capture fleeting thoughts and permanent notes instantly on your phone or desktop, even with no connection, and auto-sync them to your own Blinko server when you're back online.
-
-The UI follows the official Blinko web client: monochrome primary + Blinko purple (`hsl(253, 53%, 59%)`), light/dark themes via CSS variables, `blinko-tag` pills, masonry note cards, and an Inter typeface.
+An offline-first mobile/web client for [Blinko](https://github.com/blinkospace/blinko) — the open-source, self-hosted, AI-powered note app. Capture fleeting thoughts and permanent notes instantly on your phone or desktop, even with no connection, and auto-sync them to your own Blinko server when you're back online. Vibe-coded of course)
 
 ## Features
 
@@ -56,12 +54,6 @@ Other scripts: `npm run build` (PWA to `dist/`), `npm run preview`, `npm run lin
 
 ## Android APK
 
-### From GitHub Actions (recommended)
-
-Every push to `main`/`master` builds a debug APK and uploads it as a workflow artifact. Pushing a tag `vX.Y.Z` (e.g. `git tag v0.2.0 && git push origin v0.2.0`) additionally publishes a **GitHub Release** with `blinko_pwa_X.Y.Z.apk` attached.
-
-Install/update on device: download the APK from Actions artifacts or Releases and install it — Android treats a higher `versionCode` as an update (no reinstall needed).
-
 ### Locally
 
 ```bash
@@ -83,21 +75,6 @@ Single source of truth: **`version` in `package.json`** (currently `0.1.0`).
 - Upserts send numeric `id` only when the note already exists server-side; client ids (`note-…`, `seed-…`) are omitted on create. Tags are re-derived server-side from `#hashtags`.
 - Restore uses `batch-update { isRecycle: false }`; `batch-trash` takes `{ids}` with no flags.
 - A `Test Connection` that reports success with **0 notes** while the server has notes means the client hit the SPA fallback (HTML instead of JSON) — check the Server URL/port.
-
-## Publishing as its own repo
-
-This folder is standalone — no HTTPS, no monorepo, no upstream server code needed:
-
-```bash
-cd blinko-pwa
-git init
-git add .
-git commit -m "init: offline PWA + Capacitor APK"
-gh repo create blinko_pwa_app --private --source=. --push
-git tag v0.1.0 && git push origin v0.1.0   # triggers versioned APK Release
-```
-
-No secrets required for debug APKs. (Signed release keystore can be added later.)
 
 ## License
 
