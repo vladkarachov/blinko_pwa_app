@@ -12,6 +12,7 @@ import {
   Copy,
   Check,
   Edit3,
+  Maximize2,
 } from 'lucide-react';
 import { BlinkoNote } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
@@ -25,6 +26,7 @@ interface NoteCardProps {
   onDeletePermanent?: (id: string) => Promise<void>;
   onTagClick?: (tag: string) => void;
   onEdit?: (note: BlinkoNote) => void;
+  onOpen?: (note: BlinkoNote) => void;
 }
 
 export const NoteCard: React.FC<NoteCardProps> = ({
@@ -36,6 +38,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
   onDeletePermanent,
   onTagClick,
   onEdit,
+  onOpen,
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -133,11 +136,15 @@ export const NoteCard: React.FC<NoteCardProps> = ({
 
   return (
     <div
+      onClick={() => onOpen?.(note)}
       className={`group relative rounded-[var(--radius)] bg-[var(--background)] border p-4 shadow-none transition-all hover:translate-y-0.5 break-inside-avoid ${
+        onOpen ? 'cursor-pointer' : ''
+      } ${
         note.isPinned
           ? 'border-2 border-[var(--primary)]'
           : 'border-[var(--border)]'
       }`}
+      title={onOpen ? 'Open note' : undefined}
     >
       {/* Header */}
       <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-[var(--border)]">
@@ -159,7 +166,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({
 
           {onTogglePin && !note.isTrash && (
             <button
-              onClick={() => onTogglePin(note.id, !note.isPinned)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePin(note.id, !note.isPinned);
+              }}
               className={`p-1 rounded-md transition cursor-pointer ${
                 note.isPinned
                   ? 'text-[#EFC646]'
@@ -188,7 +198,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({
           {note.tags.map((tag) => (
             <button
               key={tag}
-              onClick={() => onTagClick?.(tag)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTagClick?.(tag);
+              }}
               className="blinko-tag font-medium transition cursor-pointer hover:opacity-80"
             >
               #{tag}
@@ -197,8 +210,16 @@ export const NoteCard: React.FC<NoteCardProps> = ({
         </div>
 
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition max-md:opacity-100">
+          {onOpen && (
+            <span className="p-1.5 text-[var(--ignore)]" title="Open note">
+              <Maximize2 className="w-3.5 h-3.5" />
+            </span>
+          )}
           <button
-            onClick={handleCopy}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCopy();
+            }}
             className="p-1.5 rounded-lg hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition cursor-pointer"
             title="Copy note content"
           >
@@ -207,7 +228,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({
 
           {onEdit && !note.isTrash && (
             <button
-              onClick={() => onEdit(note)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(note);
+              }}
               className="p-1.5 rounded-lg hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition cursor-pointer"
               title="Edit note"
             >
@@ -217,7 +241,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({
 
           {onToggleArchive && !note.isTrash && (
             <button
-              onClick={() => onToggleArchive(note.id, !note.isArchived)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleArchive(note.id, !note.isArchived);
+              }}
               className={`p-1.5 rounded-lg hover:bg-[var(--hover)] transition cursor-pointer ${
                 note.isArchived ? 'text-amber-400' : 'hover:text-[var(--foreground)]'
               }`}
@@ -231,7 +258,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({
             <>
               {onTrash && (
                 <button
-                  onClick={() => onTrash(note.id, false)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTrash(note.id, false);
+                  }}
                   className="p-1.5 rounded-lg hover:bg-[var(--hover)] text-[var(--secondary)] transition cursor-pointer"
                   title="Restore note from trash"
                 >
@@ -240,7 +270,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({
               )}
               {onDeletePermanent && (
                 <button
-                  onClick={() => onDeletePermanent(note.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeletePermanent(note.id);
+                  }}
                   className="p-1.5 rounded-lg hover:bg-[var(--hover)] text-[var(--destructive)] transition cursor-pointer"
                   title="Delete permanently"
                 >
@@ -251,7 +284,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({
           ) : (
             onTrash && (
               <button
-                onClick={() => onTrash(note.id, true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTrash(note.id, true);
+                }}
                 className="p-1.5 rounded-lg hover:bg-[var(--hover)] hover:text-[var(--destructive)] transition cursor-pointer"
                 title="Move to trash"
               >

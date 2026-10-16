@@ -14,7 +14,7 @@ import { Sidebar } from './components/Sidebar';
 import { CaptureInput } from './components/CaptureInput';
 import { NoteCard } from './components/NoteCard';
 import { SettingsModal } from './components/SettingsModal';
-import { EditNoteModal } from './components/EditNoteModal';
+import { NoteDetailModal } from './components/NoteDetailModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import {
   Zap,
@@ -35,7 +35,8 @@ export default function App() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [editingNote, setEditingNote] = useState<BlinkoNote | null>(null);
+  const [viewingNoteId, setViewingNoteId] = useState<string | null>(null);
+  const [detailStartEdit, setDetailStartEdit] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -264,6 +265,11 @@ export default function App() {
     return Array.from(tags);
   }, [notes]);
 
+  // The note open full-screen always reflects the latest synced list state
+  const viewingNote = viewingNoteId
+    ? notes.find((n) => n.id === viewingNoteId) ?? null
+    : null;
+
   const filterTitles: Record<NoteFilter, { title: string; desc: string }> = {
     all: { title: 'All Notes & Thoughts', desc: 'Fleeting ideas and structured notes' },
     blinko: { title: 'Blinkos (Fleeting Thoughts)', desc: 'Quick sparks and micro-notes' },
@@ -443,7 +449,14 @@ export default function App() {
                   onTrash={handleTrash}
                   onDeletePermanent={handleDeletePermanent}
                   onTagClick={(tag) => setSelectedTag(tag)}
-                  onEdit={(note) => setEditingNote(note)}
+                  onEdit={(n) => {
+                    setViewingNoteId(n.id);
+                    setDetailStartEdit(true);
+                  }}
+                  onOpen={(n) => {
+                    setViewingNoteId(n.id);
+                    setDetailStartEdit(false);
+                  }}
                 />
               ))}
             </div>
@@ -471,13 +484,22 @@ export default function App() {
         />
       )}
 
-      {/* Edit Note Modal */}
-      {editingNote && (
-        <EditNoteModal
-          note={editingNote}
+      {/* Full-screen note view (tap a card — like official Blinko) */}
+      {viewingNote && (
+        <NoteDetailModal
+          key={`${viewingNote.id}-${detailStartEdit ? 'edit' : 'view'}`}
+          note={viewingNote}
+          initialEdit={detailStartEdit}
+          onClose={() => setViewingNoteId(null)}
           onSave={handleUpdateNote}
-          onClose={() => setEditingNote(null)}
+          onTogglePin={handleTogglePin}
+          onToggleArchive={handleToggleArchive}
           onTrash={handleTrash}
+          onDeletePermanent={handleDeletePermanent}
+          onTagClick={(tag) => {
+            setSelectedTag(tag);
+            setViewingNoteId(null);
+          }}
         />
       )}
     </div>
