@@ -325,6 +325,7 @@ export async function apiUpsertNote(
     remoteId?: string | number;
     content: string;
     type?: number;
+    attachments?: Array<{ name: string; path: string; size?: number; type?: string }>;
   }
 ): Promise<BlinkoNote> {
   const numericId = toNumericRemoteId(note.remoteId ?? note.id);
@@ -332,6 +333,7 @@ export async function apiUpsertNote(
     ...(numericId !== undefined ? { id: numericId } : {}),
     content: note.content,
     type: note.type ?? 0,
+    ...(note.attachments && note.attachments.length > 0 ? { attachments: note.attachments } : {}),
   });
   if (result && typeof result === 'object' && 'id' in result) {
     return normalizeServerNote(result as ServerNote);
@@ -363,6 +365,46 @@ export async function apiRestoreNotes(
     .filter((n): n is number => n !== undefined);
   if (numericIds.length === 0) return;
   await requestBlinko(config, '/api/v1/note/batch-update', 'POST', { ids: numericIds, isRecycle: false });
+}
+
+// Upload a file blob to the real Blinko server.
+// POST {serverUrl}/api/file/upload (multipart `file`, Bearer token).
+// Returns the server file descriptor { path, ... } for note upsert linkage.
+export async function apiUploadFile(
+  config: AppConfig,
+  file: Blob,
+  filename: string
+): Promise<{ path: string; type?: string; size?: number; name?: string }> {
+  if (config.isDemoMode || !config.serverUrl || config.serverUrl === 'mock') {
+    throw new BlinkoApiError('File upload is unavailable in demo mode. Connect a server first.');
+  }
+  const base = config.serverUrl.replace(/\/+$/, '');
+  const url = `${base}/api/file/upload`;
+  const form = new FormData();
+  form.append('file', file, filename);
+  const token = config.apiToken
+    ? config.apiToken.startsWith('Bearer ')
+      ? config.apiToken
+      : `Bearer ${config.apiToken}`
+    : '';
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: token ? { Authorization: token } : {},
+    body: form,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new BlinkoApiError(`File upload failed (HTTP ${res.status})`, res.status, text.slice(0, 500));
+  }
+  const data = (await res.json()) as Record<string, unknown>;
+  const path = (data['path'] ?? data['filePath'] ?? '') as string;
+  if (!path) throw new BlinkoApiError('Upload succeeded but server returned no file path', res.status);
+  return {
+    path,
+    type: (data['type'] as string) ?? (file as File).type,
+    size: (data['size'] as number) ?? file.size,
+    name: filename,
+  };
 }
 
 // Permanent delete note

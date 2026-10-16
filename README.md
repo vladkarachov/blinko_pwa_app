@@ -2,7 +2,7 @@
 
 An offline-first mobile/web client for [Blinko](https://github.com/blinkospace/blinko) — the open-source, self-hosted, AI-powered note app. Capture fleeting thoughts and permanent notes instantly on your phone or desktop, even with no connection, and auto-sync them to your own Blinko server when you're back online.
 
-The UI follows the official Blinko web client (`blinko-server/blinko`): monochrome primary + Blinko purple (`hsl(253, 53%, 59%)`), light/dark themes via CSS variables, `blinko-tag` pills, masonry note cards, and an Inter typeface.
+The UI follows the official Blinko web client: monochrome primary + Blinko purple (`hsl(253, 53%, 59%)`), light/dark themes via CSS variables, `blinko-tag` pills, masonry note cards, and an Inter typeface.
 
 ## Features
 
@@ -21,23 +21,21 @@ The UI follows the official Blinko web client (`blinko-server/blinko`): monochro
 ├── src/                    # React + Tailwind PWA
 │   ├── components/         # Header, Sidebar, CaptureInput, NoteCard, ...
 │   ├── lib/
-│   │   ├── blinkoClient.ts # Blinko OpenAPI client + normalization
-│   │   ├── syncEngine.ts   # Outbox queue + push/pull sync
-│   │   ├── db.ts           # IndexedDB (notes, queue, config)
-│   │   └── version.ts      # APP_VERSION (injected from package.json)
+│   │   ├── blinkoClient.ts   # Blinko OpenAPI client + normalization
+│   │   ├── syncEngine.ts     # Outbox queue + push/pull sync
+│   │   ├── attachmentStore.ts# IndexedDB blob store for offline files
+│   │   ├── db.ts             # IndexedDB (notes, queue, config)
+│   │   └── version.ts        # APP_VERSION (injected from package.json)
 │   └── index.css           # Official-Blinko design tokens (:root / .dark)
 ├── server.ts               # Express host: mock API + /api/blinko/proxy + Vite/dist
 ├── android/                # Capacitor Android shell (version via env)
-├── .github/workflows/     # CI: versioned APK build + GitHub Release
-├── blinko-server/blinko    # Official Blinko server+web reference (git-ignored)
+├── .github/workflows/     # CI: typecheck + versioned APK build + GitHub Release
 └── dist/                   # Production web build (git-ignored)
 ```
 
-> `blinko-server/` is intentionally git-ignored (`.gitignore` → `/blinko-server`) — it's a local reference copy of the official server, not part of this repo.
-
 ## Run locally (browser / Vite)
 
-Prerequisites: Node.js 20+, a running Blinko instance (default `http://localhost:1111`, e.g. via the reference in `blinko-server/blinko`, or any Docker deploy).
+Prerequisites: Node.js 20+ (or Bun), a running Blinko instance (default `http://localhost:1111`, e.g. any Docker deploy of blinkospace/blinko).
 
 ```bash
 npm install
@@ -85,6 +83,21 @@ Single source of truth: **`version` in `package.json`** (currently `0.1.0`).
 - Upserts send numeric `id` only when the note already exists server-side; client ids (`note-…`, `seed-…`) are omitted on create. Tags are re-derived server-side from `#hashtags`.
 - Restore uses `batch-update { isRecycle: false }`; `batch-trash` takes `{ids}` with no flags.
 - A `Test Connection` that reports success with **0 notes** while the server has notes means the client hit the SPA fallback (HTML instead of JSON) — check the Server URL/port.
+
+## Publishing as its own repo
+
+This folder is standalone — no HTTPS, no monorepo, no upstream server code needed:
+
+```bash
+cd blinko-pwa
+git init
+git add .
+git commit -m "init: offline PWA + Capacitor APK"
+gh repo create blinko_pwa_app --private --source=. --push
+git tag v0.1.0 && git push origin v0.1.0   # triggers versioned APK Release
+```
+
+No secrets required for debug APKs. (Signed release keystore can be added later.)
 
 ## License
 

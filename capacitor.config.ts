@@ -10,6 +10,10 @@ const config: CapacitorConfig = {
   },
   server: {
     androidScheme: 'https',
+    cleartext: true,
+    // Self-hosted servers live on arbitrary LAN hosts; allow the WebView
+    // to navigate/fetch them and their /api/file/* attachments directly.
+    allowNavigation: ['*'],
   },
 };
 

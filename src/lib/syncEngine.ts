@@ -3,6 +3,7 @@ import {
   apiFetchNotes,
   apiRestoreNotes,
   apiTrashNotes,
+  apiUploadFile,
   apiUpsertNote,
 } from './blinkoClient';
 import {
@@ -14,6 +15,7 @@ import {
   removeQueueItem,
   saveNote,
 } from './db';
+import { getPendingAttachments, saveLocalAttachment, getAttachmentsByNote } from './attachmentStore';
 import { BlinkoNote, QueueAction, SyncQueueItem } from '../types';
 
 export interface SyncState {
@@ -170,6 +172,26 @@ class SyncEngine {
     try {
       const config = await getConfig();
 
+      // Step 0: Upload pending attachment blobs first so UPSERTs can link server paths.
+      try {
+        const pendingAtts = await getPendingAttachments();
+        for (const att of pendingAtts) {
+          try {
+            const uploaded = await apiUploadFile(config, att.blob, att.name);
+            att.remotePath = uploaded.path;
+            att.syncStatus = 'synced';
+            await saveLocalAttachment(att);
+          } catch (attErr: unknown) {
+            const msg = attErr instanceof Error ? attErr.message : String(attErr);
+            // Demo mode has no upload endpoint — leave pending without spamming note errors.
+            if (/demo mode/i.test(msg)) break;
+            console.warn(`[SyncEngine] Attachment upload failed ${att.id}:`, attErr);
+          }
+        }
+      } catch (attListErr) {
+        console.warn('[SyncEngine] Error listing pending attachments:', attListErr);
+      }
+
       // Step 1: Drain the Outbox queue
       const queue = await getQueueItems();
 
@@ -183,10 +205,17 @@ class SyncEngine {
               localNote.syncStatus = 'syncing';
               await saveNote(localNote);
 
+              // Collect synced attachment descriptors for this note
+              const atts = await getAttachmentsByNote(localNote.id).catch(() => []);
+              const linked = atts
+                .filter((a) => a.remotePath)
+                .map((a) => ({ name: a.name, path: a.remotePath as string, size: a.size, type: a.type }));
+
               const remoteResult = await apiUpsertNote(config, {
                 remoteId: localNote.remoteId ?? localNote.id,
                 content: localNote.content,
                 type: localNote.type,
+                ...(linked.length > 0 ? { attachments: linked } : {}),
               });
 
               // Mark as synced with numeric remote ID if returned

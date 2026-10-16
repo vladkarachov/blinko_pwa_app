@@ -16,9 +16,11 @@ import {
 } from 'lucide-react';
 import { BlinkoNote } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { FilesAttachmentRender } from './FilesAttachmentRender';
 
 interface NoteCardProps {
   note: BlinkoNote;
+  serverUrl?: string;
   onUpdate: (updatedNote: BlinkoNote) => Promise<void>;
   onTogglePin?: (id: string, isPinned: boolean) => Promise<void>;
   onToggleArchive?: (id: string, isArchived: boolean) => Promise<void>;
@@ -31,6 +33,7 @@ interface NoteCardProps {
 
 export const NoteCard: React.FC<NoteCardProps> = ({
   note,
+  serverUrl,
   onUpdate,
   onTogglePin,
   onToggleArchive,
@@ -190,6 +193,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
           onTagClick={onTagClick}
           onToggleTodo={handleToggleTodo}
         />
+        <FilesAttachmentRender note={note} serverUrl={serverUrl} />
       </div>
 
       {/* Footer / Actions Toolbar */}

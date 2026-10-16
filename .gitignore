@@ -1,10 +1,33 @@
+# deps / build
 node_modules/
-build/
 dist/
-coverage/
+dev-dist/
+dist-ssr/
+*.local
+
+# APKs (CI renames to blinko_pwa_<version>.apk per release)
+*.apk
+*.aab
+
+# env / editor
+.env
+.env.*
+!.env.example
 .DS_Store
 *.log
-.env*
-!.env.example
-/blinko-server
-*.apk
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Capacitor / Android generated build output (keep android/ shell committed)
+android/build/
+android/app/build/
+android/app/.cxx/
+android/.gradle/
+android/capacitor-cordova-android-plugins/build/
+android/local.properties
+
+# vite / ts caches
+*.tsbuildinfo
+node_modules/.vite/
+node_modules/.cache/
