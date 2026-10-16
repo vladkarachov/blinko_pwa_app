@@ -61,14 +61,6 @@ npm run mobile:build   # vite build + cap sync android
 cd android && ./gradlew assembleDebug
 ```
 
-## Versioning
-
-Single source of truth: **`version` in `package.json`** (currently `0.1.0`).
-
-- Web/PWA: `vite.config.ts` injects it as `__APP_VERSION__`; `src/lib/version.ts` exports `APP_VERSION`, shown in Settings → About with a "Check for updates" link to Releases.
-- Android: `android/app/build.gradle` reads `VERSION_CODE`/`VERSION_NAME` from the environment (CI sets `VERSION_NAME` from the git tag or `package.json`, and `VERSION_CODE` from the ever-increasing `GITHUB_RUN_NUMBER` so updates always install).
-- Release flow: bump `package.json` → commit → `git tag vX.Y.Z` → push tag → CI builds + releases.
-
 ## Sync / API notes
 
 - List requests send server-valid defaults (`type: -1` = all, `isArchived: false`, `isRecycle: false`); the local tag filter uses tag *names*, so `tagId` is omitted (server ids are numeric).
