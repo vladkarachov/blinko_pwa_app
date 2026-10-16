@@ -10,8 +10,12 @@ android {
         // Version is injected by CI (.github/workflows/android-apk.yml) from
         // package.json / git tags. For Android to offer APK updates,
         // versionCode must increase with every release.
-        versionCode (System.getenv("VERSION_CODE") ?: "1").toInteger()
-        versionName System.getenv("VERSION_NAME") ?: "1.0"
+        // NOTE: resolve into locals first — chaining (.toInteger()) onto the
+        // versionCode setter call misparses in Groovy ("Value is null").
+        def ciVersionCode = (System.getenv("VERSION_CODE") ?: "1").toString().trim()
+        def ciVersionName = (System.getenv("VERSION_NAME") ?: "1.0").toString().trim()
+        versionCode ciVersionCode.toInteger()
+        versionName ciVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

@@ -61,6 +61,7 @@ jobs:
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          echo "VERSION_CODE=$VERSION_CODE VERSION_NAME=$VERSION_NAME"
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
