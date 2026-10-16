@@ -47,18 +47,18 @@ export const EditNoteModal: React.FC<EditNoteModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div className="relative w-full max-w-2xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+      <div className="relative w-full max-w-2xl rounded-[var(--radius)] bg-[var(--background)] border border-[var(--border)] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-800 bg-slate-900/60">
+        <div className="flex items-center justify-between px-6 py-3.5 border-b border-[var(--border)]">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 p-0.5 rounded-lg bg-slate-950 border border-slate-800">
+            <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[var(--accent)] border border-[var(--border)]">
               <button
                 type="button"
                 onClick={() => setNoteType(0)}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition cursor-pointer ${
                   noteType === 0
-                    ? 'bg-emerald-500/20 text-emerald-400 font-semibold shadow-xs'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold shadow-xs'
+                    : 'text-[var(--desc)] hover:text-[var(--foreground)]'
                 }`}
               >
                 <Zap className="w-3.5 h-3.5" />
@@ -69,8 +69,8 @@ export const EditNoteModal: React.FC<EditNoteModalProps> = ({
                 onClick={() => setNoteType(1)}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition cursor-pointer ${
                   noteType === 1
-                    ? 'bg-emerald-500/20 text-emerald-400 font-semibold shadow-xs'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold shadow-xs'
+                    : 'text-[var(--desc)] hover:text-[var(--foreground)]'
                 }`}
               >
                 <FileText className="w-3.5 h-3.5" />
@@ -81,7 +81,7 @@ export const EditNoteModal: React.FC<EditNoteModalProps> = ({
             <button
               type="button"
               onClick={() => setPreviewMode(!previewMode)}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-slate-700 bg-slate-800 text-xs text-slate-300 hover:bg-slate-750 transition cursor-pointer ml-2"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-[var(--border)] bg-[var(--accent)] text-xs text-[var(--foreground)] hover:bg-[var(--hover)] transition cursor-pointer ml-2"
             >
               {previewMode ? (
                 <>
@@ -105,7 +105,7 @@ export const EditNoteModal: React.FC<EditNoteModalProps> = ({
                   await onTrash(note.id, true);
                   onClose();
                 }}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/20 transition cursor-pointer"
+                className="p-1.5 rounded-lg text-[var(--desc)] hover:text-[var(--destructive)] hover:bg-[var(--hover)] transition cursor-pointer"
                 title="Move to Trash"
               >
                 <Trash2 className="w-4 h-4" />
@@ -113,7 +113,7 @@ export const EditNoteModal: React.FC<EditNoteModalProps> = ({
             )}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+              className="p-1.5 rounded-lg text-[var(--desc)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] transition cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -121,9 +121,9 @@ export const EditNoteModal: React.FC<EditNoteModalProps> = ({
         </div>
 
         {/* Body */}
-        <div className="flex-1 p-6 overflow-y-auto min-h-[300px]">
+        <div className="flex-1 p-6 overflow-y-auto min-h-[300px] bg-[var(--md-editor-bg)]">
           {previewMode ? (
-            <div className="p-4 rounded-xl bg-slate-950/50 border border-slate-800/80 min-h-[260px]">
+            <div className="p-4 rounded-xl bg-[var(--accent)] border border-[var(--border)] min-h-[260px]">
               <MarkdownRenderer content={content} />
             </div>
           ) : (
@@ -131,22 +131,22 @@ export const EditNoteModal: React.FC<EditNoteModalProps> = ({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write your note or markdown here..."
-              className="w-full h-full min-h-[320px] bg-transparent resize-none text-slate-100 placeholder-slate-500 text-sm leading-relaxed outline-hidden font-sans"
+              className="w-full h-full min-h-[320px] bg-transparent resize-none text-[var(--md-editor-text)] placeholder-[var(--ignore)] text-sm leading-relaxed outline-hidden font-sans"
               autoFocus
             />
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-t border-slate-800 bg-slate-900/60">
-          <div className="text-xs text-slate-500 font-mono">
+        <div className="flex items-center justify-between px-6 py-3.5 border-t border-[var(--border)]">
+          <div className="text-xs text-[var(--desc)] font-mono">
             {content.length} characters • {extractTags(content).length} tag(s)
           </div>
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 transition cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-medium text-[var(--foreground)] hover:bg-[var(--hover)] transition cursor-pointer"
             >
               Cancel
             </button>
@@ -154,7 +154,7 @@ export const EditNoteModal: React.FC<EditNoteModalProps> = ({
               type="button"
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs transition cursor-pointer active:scale-95 shadow-md shadow-emerald-500/20"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold text-xs transition cursor-pointer active:scale-95"
             >
               <Save className="w-4 h-4" />
               <span>Save Note</span>

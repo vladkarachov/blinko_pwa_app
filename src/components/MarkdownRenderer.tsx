@@ -53,7 +53,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
               e.stopPropagation();
               onTagClick?.(tagName);
             }}
-            className="inline-flex items-center text-emerald-400 hover:text-emerald-300 font-medium px-1.5 py-0.2 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-[13px] transition cursor-pointer"
+            className="blinko-tag inline-flex items-center font-medium transition cursor-pointer hover:opacity-80"
           >
             #{tagName}
           </button>
@@ -69,7 +69,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-emerald-400 hover:underline inline-flex items-center gap-0.5"
+              className="text-[var(--secondary)] hover:underline inline-flex items-center gap-0.5"
             >
               {linkMatch[1]}
             </a>
@@ -78,21 +78,21 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       } else if (matchStr.startsWith('**') && matchStr.endsWith('**')) {
         // Bold
         nodes.push(
-          <strong key={`bold-${keyIdx++}`} className="font-semibold text-slate-100">
+          <strong key={`bold-${keyIdx++}`} className="font-semibold text-[var(--foreground)]">
             {matchStr.slice(2, -2)}
           </strong>
         );
       } else if (matchStr.startsWith('*') && matchStr.endsWith('*')) {
         // Italic
         nodes.push(
-          <em key={`italic-${keyIdx++}`} className="italic text-slate-200">
+          <em key={`italic-${keyIdx++}`} className="italic text-[var(--foreground)]">
             {matchStr.slice(1, -1)}
           </em>
         );
       } else if (matchStr.startsWith('~~') && matchStr.endsWith('~~')) {
         // Strikethrough
         nodes.push(
-          <del key={`strike-${keyIdx++}`} className="line-through text-slate-400">
+          <del key={`strike-${keyIdx++}`} className="line-through text-[var(--desc)]">
             {matchStr.slice(2, -2)}
           </del>
         );
@@ -101,7 +101,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         nodes.push(
           <code
             key={`code-${keyIdx++}`}
-            className="px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300 font-mono text-[12px] border border-slate-700"
+            className="px-1.5 py-0.5 rounded bg-[var(--accent)] text-[var(--secondary)] font-mono text-[12px] border border-[var(--border)]"
           >
             {matchStr.slice(1, -1)}
           </code>
@@ -136,20 +136,20 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         const fullCode = codeBuffer.join('\n');
         const currentIdx = codeBlockCount++;
         elements.push(
-          <div key={`code-blk-${currentIdx}`} className="relative my-2 rounded-lg bg-slate-900 border border-slate-800 overflow-hidden font-mono text-xs">
-            <div className="flex items-center justify-between px-3 py-1.5 bg-slate-850 border-b border-slate-800 text-[11px] text-slate-400">
+          <div key={`code-blk-${currentIdx}`} className="relative my-2 rounded-lg bg-[var(--md-editor-bg)] border border-[var(--md-editor-border)] overflow-hidden font-mono text-xs">
+            <div className="flex items-center justify-between px-3 py-1.5 border-b border-[var(--md-editor-border)] text-[11px] text-[var(--desc)]">
               <span>{codeLang || 'code'}</span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleCopyCode(fullCode, currentIdx);
                 }}
-                className="flex items-center gap-1 hover:text-white transition cursor-pointer"
+                className="flex items-center gap-1 hover:text-[var(--foreground)] transition cursor-pointer"
               >
                 {copiedCodeIdx === currentIdx ? (
                   <>
-                    <Check className="w-3 h-3 text-emerald-400" />
-                    <span className="text-emerald-400">Copied</span>
+                    <Check className="w-3 h-3 text-[var(--secondary)]" />
+                    <span className="text-[var(--secondary)]">Copied</span>
                   </>
                 ) : (
                   <>
@@ -159,7 +159,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                 )}
               </button>
             </div>
-            <pre className="p-3 overflow-x-auto text-emerald-200/90 leading-relaxed">
+            <pre className="p-3 overflow-x-auto text-[var(--md-editor-text)] leading-relaxed">
               <code>{fullCode}</code>
             </pre>
           </div>
@@ -198,11 +198,11 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
             type="checkbox"
             checked={isChecked}
             readOnly
-            className="mt-1 w-4 h-4 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-emerald-500"
+            className="mt-1 w-4 h-4 rounded border-[var(--border)] bg-[var(--accent)] accent-purple-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
           />
           <span
             className={`text-sm leading-relaxed ${
-              isChecked ? 'line-through text-slate-400' : 'text-slate-200'
+              isChecked ? 'line-through text-[var(--desc)]' : 'text-[var(--foreground)]'
             }`}
           >
             {renderInline(text)}
@@ -215,7 +215,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     // Headers
     if (line.startsWith('### ')) {
       elements.push(
-        <h3 key={`h3-${i}`} className="text-base font-bold text-slate-100 mt-2 mb-1">
+        <h3 key={`h3-${i}`} className="text-base font-bold text-[var(--foreground)] mt-2 mb-1">
           {renderInline(line.substring(4))}
         </h3>
       );
@@ -223,7 +223,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     }
     if (line.startsWith('## ')) {
       elements.push(
-        <h2 key={`h2-${i}`} className="text-lg font-bold text-slate-100 mt-3 mb-1">
+        <h2 key={`h2-${i}`} className="text-lg font-bold text-[var(--foreground)] mt-3 mb-1">
           {renderInline(line.substring(3))}
         </h2>
       );
@@ -231,7 +231,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     }
     if (line.startsWith('# ')) {
       elements.push(
-        <h1 key={`h1-${i}`} className="text-xl font-bold text-slate-100 mt-3 mb-1">
+        <h1 key={`h1-${i}`} className="text-xl font-bold text-[var(--foreground)] mt-3 mb-1">
           {renderInline(line.substring(2))}
         </h1>
       );
@@ -243,7 +243,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       elements.push(
         <blockquote
           key={`quote-${i}`}
-          className="border-l-2 border-emerald-500/60 pl-3 py-0.5 my-1.5 text-slate-300 italic text-sm"
+          className="border-l-2 border-[var(--secondary)] pl-3 py-0.5 my-1.5 text-[var(--desc)] italic text-sm"
         >
           {renderInline(line.substring(2))}
         </blockquote>
@@ -255,8 +255,8 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     if (line.match(/^(\s*)[-*+]\s+(.*)$/)) {
       const listMatch = line.match(/^(\s*)[-*+]\s+(.*)$/)!;
       elements.push(
-        <div key={`li-${i}`} className="flex items-start gap-2 my-0.5 text-sm text-slate-200">
-          <span className="text-emerald-400 select-none mt-0.5">•</span>
+        <div key={`li-${i}`} className="flex items-start gap-2 my-0.5 text-sm text-[var(--foreground)]">
+          <span className="text-[var(--secondary)] select-none mt-0.5">•</span>
           <span className="flex-1">{renderInline(listMatch[2])}</span>
         </div>
       );
@@ -271,7 +271,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
 
     // Regular paragraph
     elements.push(
-      <p key={`p-${i}`} className="text-sm text-slate-200 leading-relaxed break-words">
+      <p key={`p-${i}`} className="text-sm text-[var(--foreground)] leading-relaxed break-words">
         {renderInline(line)}
       </p>
     );
@@ -280,7 +280,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   // If code block remains unclosed
   if (inCodeBlock && codeBuffer.length > 0) {
     elements.push(
-      <pre key="unclosed-code" className="p-3 my-2 rounded-lg bg-slate-900 border border-slate-800 font-mono text-xs overflow-x-auto text-emerald-200/90">
+      <pre key="unclosed-code" className="p-3 my-2 rounded-lg bg-[var(--md-editor-bg)] border border-[var(--md-editor-border)] font-mono text-xs overflow-x-auto text-[var(--md-editor-text)]">
         <code>{codeBuffer.join('\n')}</code>
       </pre>
     );

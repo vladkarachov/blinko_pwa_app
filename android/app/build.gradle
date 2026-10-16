@@ -7,8 +7,11 @@ android {
         applicationId "com.blinko.offline"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // Version is injected by CI (.github/workflows/android-apk.yml) from
+        // package.json / git tags. For Android to offer APK updates,
+        // versionCode must increase with every release.
+        versionCode (System.getenv("VERSION_CODE") ?: "1").toInteger()
+        versionName System.getenv("VERSION_NAME") ?: "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

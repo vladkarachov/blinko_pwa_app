@@ -43,20 +43,20 @@ export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ notes }) => {
   }
 
   const getColorClass = (count: number) => {
-    if (count === 0) return 'bg-slate-800/80';
-    if (count === 1) return 'bg-emerald-900 text-emerald-100';
-    if (count === 2) return 'bg-emerald-700 text-emerald-100';
-    if (count <= 4) return 'bg-emerald-500 text-slate-950';
-    return 'bg-emerald-400 text-slate-950 font-bold';
+    if (count === 0) return 'bg-[var(--accent)]';
+    if (count === 1) return 'bg-[var(--secondary)] opacity-40';
+    if (count === 2) return 'bg-[var(--secondary)] opacity-70';
+    if (count <= 4) return 'bg-[var(--secondary)] opacity-90';
+    return 'bg-[var(--secondary)] font-bold';
   };
 
   const totalCaptured = notes.filter((n) => !n.isTrash).length;
 
   return (
-    <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800/80 text-xs">
+    <div className="p-3 rounded-[var(--radius)] bg-[var(--accent)] border border-[var(--border)] text-xs">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-semibold text-slate-300">Activity Heatmap</span>
-        <span className="text-[11px] text-slate-400">{totalCaptured} total captures</span>
+        <span className="font-semibold text-[var(--foreground)]">Activity Heatmap</span>
+        <span className="text-[11px] text-[var(--desc)]">{totalCaptured} total captures</span>
       </div>
 
       <div className="flex gap-1 overflow-x-auto pb-1 pt-0.5">
@@ -73,14 +73,14 @@ export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ notes }) => {
         ))}
       </div>
 
-      <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-800/60 text-[10px] text-slate-500">
+      <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-[var(--border)] text-[10px] text-[var(--desc)]">
         <span>Less</span>
         <div className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-[2px] bg-slate-800" />
-          <span className="w-2.5 h-2.5 rounded-[2px] bg-emerald-900" />
-          <span className="w-2.5 h-2.5 rounded-[2px] bg-emerald-700" />
-          <span className="w-2.5 h-2.5 rounded-[2px] bg-emerald-500" />
-          <span className="w-2.5 h-2.5 rounded-[2px] bg-emerald-400" />
+          <span className="w-2.5 h-2.5 rounded-[2px] bg-[var(--accent)] border border-[var(--border)]" />
+          <span className="w-2.5 h-2.5 rounded-[2px] bg-[var(--secondary)] opacity-40" />
+          <span className="w-2.5 h-2.5 rounded-[2px] bg-[var(--secondary)] opacity-70" />
+          <span className="w-2.5 h-2.5 rounded-[2px] bg-[var(--secondary)] opacity-90" />
+          <span className="w-2.5 h-2.5 rounded-[2px] bg-[var(--secondary)]" />
         </div>
         <span>More</span>
       </div>

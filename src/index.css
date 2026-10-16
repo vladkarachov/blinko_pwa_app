@@ -1,20 +1,132 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens aligned with the official Blinko web interface
+ * (blinko-server/blinko/app/src/styles/globals.css).
+ * Light theme on :root, dark theme on .dark — primary is monochrome
+ * (black/white), secondary is Blinko purple, tags are #c35af7.
+ */
 @layer base {
-  * {
-    border-color: var(--color-slate-800, #1e293b);
+  :root {
+    --font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --background: hsl(0 0% 100%);
+    --foreground: hsl(222.2 47.4% 11.2%);
+    --secondbackground: #f8f8f8;
+
+    --hover: #efeee7d9;
+    --hover-foreground: hsl(215.4 16.3% 46.9%);
+
+    --desc: #808080;
+    --ignore: #bababa;
+    --tag: #c35af7;
+    --tag-foreground: #fceefe;
+    --scrollbar: #d6d7d9;
+
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(222.2 47.4% 11.2%);
+
+    --muted: hsl(210 40% 96.1%);
+    --muted-foreground: hsl(215.4 16.3% 46.9%);
+
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(222.2 47.4% 11.2%);
+
+    --border: #e7e7e5;
+    --input: hsl(214.3 31.8% 91.4%);
+
+    --primary: black;
+    --primary-foreground: hsl(210 40% 98%);
+
+    --secondary: hsl(253, 53%, 59%);
+    --secondary-foreground: hsl(210 40% 98%);
+
+    --accent: hsl(240, 5%, 96%);
+    --accent-foreground: hsl(222.2 47.4% 11.2%);
+
+    --destructive: hsl(0 100% 50%);
+    --destructive-foreground: hsl(210 40% 98%);
+
+    --ring: hsl(215 20.2% 65.1%);
+    --header: rgb(249 250 251 / 0.9);
+
+    --radius: 0.5rem;
+    --md-editor-bg: #fff;
+    --md-editor-text: hsl(222.2 47.4% 11.2%);
+    --md-editor-border: #e5e7eb;
+    --shadow: 1px 1px 7px 3px #b1b1b142;
   }
 
+  .dark {
+    --background: #0b0b0c;
+    --foreground: #e1e1e1;
+    --secondbackground: #1c1c1e;
+
+    --hover: #292929;
+    --hover-foreground: hsl(215.4 16.3% 46.9%);
+
+    --muted: hsl(224, 20%, 19%);
+    --muted-foreground: hsl(215.4 16.3% 56.9%);
+
+    --desc: #999999;
+    --ignore: #6d6d6d;
+    --tag: #c35af7;
+    --tag-foreground: #1b1b1b;
+
+    --scrollbar: #1b1b1b;
+
+    --popover: hsl(224 71% 4%);
+    --popover-foreground: hsl(215 20.2% 65.1%);
+
+    --card: hsl(224 71% 4%);
+    --card-foreground: hsl(213 31% 91%);
+
+    --border: #262628;
+    --input: hsl(216 34% 17%);
+
+    --primary: #f9f9f9;
+    --primary-foreground: hsl(0, 0%, 0%);
+
+    --secondary: hsl(253, 53%, 59%);
+    --secondary-foreground: hsl(210 40% 98%);
+
+    --accent: hsl(214, 9%, 15%);
+    --accent-foreground: hsl(210 40% 98%);
+
+    --destructive: hsl(0 63% 31%);
+    --destructive-foreground: hsl(210 40% 98%);
+
+    --ring: hsl(216 34% 17%);
+
+    --header: rgba(0, 0, 0, 0.8);
+
+    --radius: 0.5rem;
+
+    --md-editor-bg: #09090b;
+    --md-editor-text: hsl(210 40% 98%);
+    --md-editor-border: #27272a;
+    --shadow: 0 0 1px 1px #303030;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  html,
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background-color: #020617;
-    color: #f8fafc;
+    background-color: var(--secondbackground);
+    color: var(--foreground);
+    font-family: var(--font-family);
     overflow-x: hidden;
   }
 
-  /* Custom subtle scrollbars */
+  ::selection {
+    background-color: #47a3f3;
+    color: #fefefe;
+  }
+
   ::-webkit-scrollbar {
-    width: 6px;
+    background: transparent;
+    width: 8px;
     height: 6px;
   }
 
@@ -23,11 +135,67 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 9999px;
+    background: var(--primary);
+    border-radius: 1px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: color-mix(in srgb, var(--primary) 80%, transparent);
   }
+}
+
+/* Official Blinko tag pill: monochrome 10% bg, 7px radius */
+.blinko-tag {
+  margin-right: 4px;
+  margin-left: 4px;
+  color: var(--primary) !important;
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+  border-radius: 7px;
+  font-size: 13px;
+  padding: 3px 6px;
+  text-decoration: none !important;
+}
+
+.blinko-reference {
+  border: 2px solid color-mix(in srgb, var(--primary) 20%, transparent);
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+  border-radius: 7px;
+  font-size: 13px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.blinko-reference:hover {
+  background-color: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.dark .glass-effect {
+  background: rgba(11, 11, 12, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Official Blinko masonry grid for note cards */
+.card-masonry-grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-left: -10px;
+  width: auto;
+}
+
+.card-masonry-grid_column {
+  padding-left: 10px;
+  background-clip: padding-box;
+}
+
+.card-masonry-grid_column > div {
+  margin-bottom: 10px;
 }

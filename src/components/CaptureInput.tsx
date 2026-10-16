@@ -127,17 +127,17 @@ export const CaptureInput: React.FC<CaptureInputProps> = ({ onSave, existingTags
   const popularTags = Array.from(new Set(['idea', 'todo', 'work', 'note', ...existingTags])).slice(0, 5);
 
   return (
-    <div className="relative rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl shadow-black/40 overflow-hidden transition-all focus-within:border-emerald-500/60 focus-within:ring-2 focus-within:ring-emerald-500/20">
+    <div className="relative rounded-[var(--radius)] bg-[var(--md-editor-bg)] border border-[var(--md-editor-border)] shadow-[var(--shadow)] overflow-hidden transition-all focus-within:border-[var(--ring)]">
       {/* Top Bar with Type Selector & Toast */}
-      <div className="flex items-center justify-between px-4 pt-3 pb-1 border-b border-slate-800/60 bg-slate-900/40">
-        <div className="flex items-center gap-1.5 p-0.5 rounded-lg bg-slate-950/70 border border-slate-800">
+      <div className="flex items-center justify-between px-4 pt-3 pb-1 border-b border-[var(--md-editor-border)]">
+        <div className="flex items-center gap-1.5 p-0.5 rounded-lg bg-[var(--accent)] border border-[var(--border)]">
           <button
             type="button"
             onClick={() => setNoteType(0)}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition cursor-pointer ${
               noteType === 0
-                ? 'bg-emerald-500/20 text-emerald-400 font-semibold shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold shadow-xs'
+                : 'text-[var(--desc)] hover:text-[var(--foreground)]'
             }`}
           >
             <Zap className="w-3.5 h-3.5" />
@@ -148,8 +148,8 @@ export const CaptureInput: React.FC<CaptureInputProps> = ({ onSave, existingTags
             onClick={() => setNoteType(1)}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition cursor-pointer ${
               noteType === 1
-                ? 'bg-emerald-500/20 text-emerald-400 font-semibold shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold shadow-xs'
+                : 'text-[var(--desc)] hover:text-[var(--foreground)]'
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
@@ -158,8 +158,8 @@ export const CaptureInput: React.FC<CaptureInputProps> = ({ onSave, existingTags
         </div>
 
         {saveToast && (
-          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-medium animate-in fade-in slide-in-from-top-1">
-            <Sparkles className="w-3 h-3" />
+          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--accent)] text-[var(--foreground)] text-xs font-medium animate-in fade-in slide-in-from-top-1">
+            <Sparkles className="w-3 h-3 text-[var(--secondary)]" />
             <span>{saveToast}</span>
           </div>
         )}
@@ -178,21 +178,21 @@ export const CaptureInput: React.FC<CaptureInputProps> = ({ onSave, existingTags
               ? 'Capture a fleeting idea, thought, or link... (Press Cmd+Enter to send)'
               : '# Note Title\n\nDraft structured permanent notes, thoughts, and documents...'
           }
-          className="w-full bg-transparent resize-none text-slate-100 placeholder-slate-500 text-sm leading-relaxed outline-hidden focus:outline-hidden min-h-[58px]"
+          className="w-full bg-transparent resize-none text-[var(--md-editor-text)] placeholder-[var(--ignore)] text-sm leading-relaxed outline-hidden focus:outline-hidden min-h-[58px]"
         />
       </div>
 
       {/* Bottom Action Bar */}
-      <div className="flex items-center justify-between px-4 pb-3 pt-1 border-t border-slate-800/40 text-slate-400">
+      <div className="flex items-center justify-between px-4 pb-3 pt-1 border-t border-[var(--md-editor-border)] text-[var(--desc)]">
         <div className="flex items-center gap-1 flex-wrap">
           {/* Add Todo */}
           <button
             type="button"
             onClick={() => insertText('- [ ] ')}
-            className="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-slate-800 hover:text-slate-200 text-xs transition cursor-pointer"
+            className="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-[var(--hover)] hover:text-[var(--foreground)] text-xs transition cursor-pointer"
             title="Insert Task item"
           >
-            <CheckSquare className="w-3.5 h-3.5 text-slate-400" />
+            <CheckSquare className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Todo</span>
           </button>
 
@@ -201,16 +201,16 @@ export const CaptureInput: React.FC<CaptureInputProps> = ({ onSave, existingTags
             <button
               type="button"
               onClick={() => setShowTagMenu(!showTagMenu)}
-              className="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-slate-800 hover:text-slate-200 text-xs transition cursor-pointer"
+              className="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-[var(--hover)] hover:text-[var(--foreground)] text-xs transition cursor-pointer"
               title="Add Tag"
             >
-              <Hash className="w-3.5 h-3.5 text-slate-400" />
+              <Hash className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Tag</span>
             </button>
 
             {showTagMenu && (
-              <div className="absolute left-0 bottom-full mb-1 w-44 rounded-xl bg-slate-900 border border-slate-800 shadow-xl p-1.5 z-30">
-                <div className="text-[11px] font-semibold text-slate-400 px-2 py-1">Quick Tags</div>
+              <div className="absolute left-0 bottom-full mb-1 w-44 rounded-xl bg-[var(--popover)] border border-[var(--border)] shadow-xl p-1.5 z-30">
+                <div className="text-[11px] font-semibold text-[var(--desc)] px-2 py-1">Quick Tags</div>
                 {popularTags.map((tag) => (
                   <button
                     key={tag}
@@ -218,9 +218,9 @@ export const CaptureInput: React.FC<CaptureInputProps> = ({ onSave, existingTags
                       insertText(` #${tag} `);
                       setShowTagMenu(false);
                     }}
-                    className="w-full text-left px-2 py-1 rounded-md text-xs text-slate-200 hover:bg-emerald-500/20 hover:text-emerald-400 flex items-center gap-1.5 transition cursor-pointer"
+                    className="w-full text-left px-2 py-1 rounded-md text-xs text-[var(--foreground)] hover:bg-[var(--hover)] flex items-center gap-1.5 transition cursor-pointer"
                   >
-                    <Hash className="w-3 h-3 text-emerald-400" />
+                    <Hash className="w-3 h-3 text-[var(--tag)]" />
                     <span>{tag}</span>
                   </button>
                 ))}
@@ -234,8 +234,8 @@ export const CaptureInput: React.FC<CaptureInputProps> = ({ onSave, existingTags
             onClick={toggleRecording}
             className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs transition cursor-pointer ${
               isRecording
-                ? 'bg-rose-500/20 text-rose-400 animate-pulse'
-                : 'hover:bg-slate-800 hover:text-slate-200'
+                ? 'bg-[var(--destructive)] text-[var(--destructive-foreground)] animate-pulse'
+                : 'hover:bg-[var(--hover)] hover:text-[var(--foreground)]'
             }`}
             title="Speech-to-text voice capture"
           >
@@ -246,12 +246,12 @@ export const CaptureInput: React.FC<CaptureInputProps> = ({ onSave, existingTags
 
         {/* Send Button & Shortcut Hint */}
         <div className="flex items-center gap-2">
-          <span className="text-[11px] text-slate-500 hidden md:inline">⌘ + ↵</span>
+          <span className="text-[11px] text-[var(--ignore)] hidden md:inline">⌘ + ↵</span>
           <button
             type="button"
             onClick={handleSave}
             disabled={!content.trim() || isSaving}
-            className="flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:hover:bg-emerald-500 text-slate-950 font-semibold px-4 py-1.5 text-xs transition cursor-pointer active:scale-95 shadow-md shadow-emerald-500/20"
+            className="flex items-center gap-1.5 rounded-xl bg-[var(--primary)] hover:opacity-90 disabled:opacity-40 text-[var(--primary-foreground)] font-semibold px-4 py-1.5 text-xs transition cursor-pointer active:scale-95"
           >
             <span>Capture</span>
             <Send className="w-3.5 h-3.5" />

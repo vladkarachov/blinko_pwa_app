@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Zap,
-  FileText,
   Pin,
   Clock,
   CheckCircle2,
@@ -93,7 +91,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       case 'synced':
         return (
           <span
-            className="flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full"
+            className="flex items-center gap-1 text-[11px] text-[var(--secondary)] bg-[var(--accent)] px-2 py-0.5 rounded-full"
             title="Synced with Blinko server"
           >
             <CheckCircle2 className="w-3 h-3" />
@@ -135,25 +133,25 @@ export const NoteCard: React.FC<NoteCardProps> = ({
 
   return (
     <div
-      className={`group relative rounded-2xl bg-slate-900/80 border p-4 shadow-md transition-all hover:shadow-xl hover:border-slate-700/80 ${
+      className={`group relative rounded-[var(--radius)] bg-[var(--background)] border p-4 shadow-none transition-all hover:translate-y-0.5 break-inside-avoid ${
         note.isPinned
-          ? 'border-emerald-500/40 bg-gradient-to-b from-emerald-950/20 to-slate-900/90'
-          : 'border-slate-800'
+          ? 'border-2 border-[var(--primary)]'
+          : 'border-[var(--border)]'
       }`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-slate-800/60">
+      <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
           {note.type === 0 ? (
-            <div className="p-1 rounded-md bg-emerald-500/10 text-emerald-400" title="Blinko Fleeting Thought">
-              <Zap className="w-3.5 h-3.5" />
-            </div>
+            <span className="text-xs font-bold text-yellow-500" title="Blinko Fleeting Thought">
+              blinko⚡
+            </span>
           ) : (
-            <div className="p-1 rounded-md bg-sky-500/10 text-sky-400" title="Permanent Note">
-              <FileText className="w-3.5 h-3.5" />
-            </div>
+            <span className="text-xs font-bold text-blue-500" title="Permanent Note">
+              note
+            </span>
           )}
-          <span className="text-xs text-slate-400 font-medium">{formatDate(note.updatedAt)}</span>
+          <span className="text-xs text-[var(--desc)] font-medium">{formatDate(note.updatedAt)}</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -164,8 +162,8 @@ export const NoteCard: React.FC<NoteCardProps> = ({
               onClick={() => onTogglePin(note.id, !note.isPinned)}
               className={`p-1 rounded-md transition cursor-pointer ${
                 note.isPinned
-                  ? 'text-emerald-400 bg-emerald-500/10'
-                  : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'
+                  ? 'text-[#EFC646]'
+                  : 'text-[var(--desc)] opacity-0 group-hover:opacity-100 hover:text-[var(--foreground)]'
               }`}
               title={note.isPinned ? 'Unpin note' : 'Pin to top'}
             >
@@ -185,32 +183,32 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       </div>
 
       {/* Footer / Actions Toolbar */}
-      <div className="mt-3 pt-2.5 flex items-center justify-between border-t border-slate-800/60 text-slate-400">
-        <div className="flex items-center gap-1.5 flex-wrap">
+      <div className="mt-3 pt-2.5 flex items-center justify-between border-t border-[var(--border)] text-[var(--desc)]">
+        <div className="flex items-center gap-1 flex-wrap">
           {note.tags.map((tag) => (
             <button
               key={tag}
               onClick={() => onTagClick?.(tag)}
-              className="text-[11px] font-medium text-slate-400 hover:text-emerald-300 px-1.5 py-0.5 rounded bg-slate-800/60 hover:bg-emerald-950/40 border border-slate-750 transition cursor-pointer"
+              className="blinko-tag font-medium transition cursor-pointer hover:opacity-80"
             >
               #{tag}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition max-md:opacity-100">
           <button
             onClick={handleCopy}
-            className="p-1.5 rounded-lg hover:bg-slate-800 hover:text-slate-200 transition cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition cursor-pointer"
             title="Copy note content"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-[var(--secondary)]" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
 
           {onEdit && !note.isTrash && (
             <button
               onClick={() => onEdit(note)}
-              className="p-1.5 rounded-lg hover:bg-slate-800 hover:text-slate-200 transition cursor-pointer"
+              className="p-1.5 rounded-lg hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition cursor-pointer"
               title="Edit note"
             >
               <Edit3 className="w-3.5 h-3.5" />
@@ -220,8 +218,8 @@ export const NoteCard: React.FC<NoteCardProps> = ({
           {onToggleArchive && !note.isTrash && (
             <button
               onClick={() => onToggleArchive(note.id, !note.isArchived)}
-              className={`p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer ${
-                note.isArchived ? 'text-amber-400' : 'hover:text-slate-200'
+              className={`p-1.5 rounded-lg hover:bg-[var(--hover)] transition cursor-pointer ${
+                note.isArchived ? 'text-amber-400' : 'hover:text-[var(--foreground)]'
               }`}
               title={note.isArchived ? 'Unarchive' : 'Archive note'}
             >
@@ -234,7 +232,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
               {onTrash && (
                 <button
                   onClick={() => onTrash(note.id, false)}
-                  className="p-1.5 rounded-lg hover:bg-slate-800 text-emerald-400 hover:text-emerald-300 transition cursor-pointer"
+                  className="p-1.5 rounded-lg hover:bg-[var(--hover)] text-[var(--secondary)] transition cursor-pointer"
                   title="Restore note from trash"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -243,7 +241,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
               {onDeletePermanent && (
                 <button
                   onClick={() => onDeletePermanent(note.id)}
-                  className="p-1.5 rounded-lg hover:bg-rose-950/40 text-rose-400 hover:text-rose-300 transition cursor-pointer"
+                  className="p-1.5 rounded-lg hover:bg-[var(--hover)] text-[var(--destructive)] transition cursor-pointer"
                   title="Delete permanently"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -254,7 +252,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
             onTrash && (
               <button
                 onClick={() => onTrash(note.id, true)}
-                className="p-1.5 rounded-lg hover:bg-slate-800 hover:text-rose-400 transition cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-[var(--hover)] hover:text-[var(--destructive)] transition cursor-pointer"
                 title="Move to trash"
               >
                 <Trash2 className="w-3.5 h-3.5" />

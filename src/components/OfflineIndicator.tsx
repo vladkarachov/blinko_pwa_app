@@ -29,9 +29,9 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ syncState, o
       )}
 
       {isOnline && pendingCount > 0 && (
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-900/95 backdrop-blur-md px-3.5 py-2 text-xs text-slate-200 shadow-xl border border-slate-700/80">
+        <div className="flex items-center justify-between gap-3 rounded-xl bg-[var(--background)] backdrop-blur-md px-3.5 py-2 text-xs text-[var(--foreground)] shadow-xl border border-[var(--border)]">
           <div className="flex items-center gap-2">
-            <RefreshCw className={`w-3.5 h-3.5 text-emerald-400 ${isSyncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-[var(--secondary)] ${isSyncing ? 'animate-spin' : ''}`} />
             <span>
               {isSyncing ? 'Synchronizing changes...' : `${pendingCount} unsynced change(s)`}
             </span>
@@ -39,7 +39,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ syncState, o
           {!isSyncing && (
             <button
               onClick={onSyncNow}
-              className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 underline cursor-pointer"
+              className="text-xs font-semibold text-[var(--secondary)] hover:underline cursor-pointer"
             >
               Sync Now
             </button>

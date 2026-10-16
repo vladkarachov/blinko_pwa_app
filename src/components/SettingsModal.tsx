@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   X,
   Server,
-  Key,
   RefreshCw,
   Database,
   Download,
@@ -11,10 +10,14 @@ import {
   ExternalLink,
   ShieldCheck,
   Trash2,
+  Sun,
+  Moon,
+  Monitor,
 } from 'lucide-react';
 import { AppConfig, SyncQueueItem, BlinkoNote } from '../types';
 import { apiTestConnection } from '../lib/blinkoClient';
 import { getQueueItems, resetDatabase } from '../lib/db';
+import { APP_VERSION, RELEASES_URL } from '../lib/version';
 
 interface SettingsModalProps {
   config: AppConfig;
@@ -70,7 +73,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleExportBackup = () => {
     const backupData = {
       exportDate: new Date().toISOString(),
-      clientVersion: '1.0.0',
+      clientVersion: APP_VERSION,
       totalNotes: notes.length,
       notes,
     };
@@ -85,23 +88,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     URL.revokeObjectURL(url);
   };
 
+  const themeOptions = [
+    { id: 'light' as const, label: 'Light', icon: Sun },
+    { id: 'dark' as const, label: 'Dark', icon: Moon },
+    { id: 'system' as const, label: 'System', icon: Monitor },
+  ];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div className="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-lg rounded-[var(--radius)] bg-[var(--background)] border border-[var(--border)] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/60">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <div className="p-2 rounded-xl bg-[var(--accent)] text-[var(--secondary)]">
               <Server className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-slate-100">Blinko Settings & Sync</h2>
-              <p className="text-xs text-slate-400">Configure your self-hosted server and offline rules</p>
+              <h2 className="text-base font-black text-[var(--foreground)]">Blinko Settings & Sync</h2>
+              <p className="text-xs text-[var(--desc)]">Configure your self-hosted server and offline rules</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+            className="p-1.5 rounded-lg text-[var(--desc)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -110,11 +119,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Content */}
         <div className="p-6 space-y-6 overflow-y-auto text-sm">
           {/* Mode switch */}
-          <div className="rounded-xl p-3.5 bg-slate-950/60 border border-slate-800 space-y-2">
+          <div className="rounded-xl p-3.5 bg-[var(--accent)] border border-[var(--border)] space-y-2">
             <div className="flex items-center justify-between">
               <div>
-                <span className="font-medium text-slate-200">Standalone Demo Mode</span>
-                <p className="text-xs text-slate-400">
+                <span className="font-medium text-[var(--foreground)]">Standalone Demo Mode</span>
+                <p className="text-xs text-[var(--desc)]">
                   Simulates a Blinko instance locally without needing Docker running
                 </p>
               </div>
@@ -127,19 +136,47 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     isDemoMode: e.target.checked,
                   })
                 }
-                className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                className="w-4 h-4 accent-purple-500 rounded cursor-pointer"
               />
+            </div>
+          </div>
+
+          {/* Appearance */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--desc)]">
+              Appearance
+            </h3>
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--accent)] border border-[var(--border)]">
+              {themeOptions.map((opt) => {
+                const Icon = opt.icon;
+                const isActive = formData.theme === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, theme: opt.id })}
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
+                      isActive
+                        ? 'bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold shadow-xs'
+                        : 'text-[var(--desc)] hover:text-[var(--foreground)]'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{opt.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Server Config */}
           <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--desc)]">
               Self-Hosted Server Connection
             </h3>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-[var(--foreground)] mb-1.5">
                 Blinko Server URL
               </label>
               <div className="relative">
@@ -149,16 +186,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   disabled={formData.isDemoMode}
                   onChange={(e) => setFormData({ ...formData, serverUrl: e.target.value })}
                   placeholder="e.g. http://localhost:1111 or https://blinko.example.com"
-                  className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:outline-hidden disabled:opacity-50"
+                  className="w-full rounded-xl bg-[var(--accent)] border border-[var(--border)] px-3.5 py-2.5 text-xs text-[var(--foreground)] placeholder-[var(--ignore)] focus:border-[var(--ring)] focus:outline-hidden disabled:opacity-50"
                 />
               </div>
-              <p className="mt-1 text-[11px] text-slate-500">
+              <p className="mt-1 text-[11px] text-[var(--desc)]">
                 Default port for self-hosted Blinko Docker container is 1111.
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-[var(--foreground)] mb-1.5">
                 Open API Access Token
               </label>
               <div className="relative">
@@ -168,16 +205,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   disabled={formData.isDemoMode}
                   onChange={(e) => setFormData({ ...formData, apiToken: e.target.value })}
                   placeholder="Paste Bearer token from Blinko Settings"
-                  className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:outline-hidden font-mono disabled:opacity-50"
+                  className="w-full rounded-xl bg-[var(--accent)] border border-[var(--border)] px-3.5 py-2.5 text-xs text-[var(--foreground)] placeholder-[var(--ignore)] focus:border-[var(--ring)] focus:outline-hidden font-mono disabled:opacity-50"
                 />
               </div>
-              <div className="mt-1 flex items-center justify-between text-[11px] text-slate-400">
+              <div className="mt-1 flex items-center justify-between text-[11px] text-[var(--desc)]">
                 <span>Find this in Blinko: Settings → Open API / Access Token</span>
                 <a
                   href="https://github.com/blinkospace/blinko"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-emerald-400 hover:underline inline-flex items-center gap-0.5"
+                  className="text-[var(--secondary)] hover:underline inline-flex items-center gap-0.5"
                 >
                   Blinko Repo <ExternalLink className="w-2.5 h-2.5" />
                 </a>
@@ -185,12 +222,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {/* Proxy Toggle */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/40 border border-slate-800/80">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--accent)] border border-[var(--border)]">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <ShieldCheck className="w-4 h-4 text-[var(--secondary)]" />
                 <div>
-                  <span className="text-xs font-medium text-slate-200">Use Server-Side Proxy</span>
-                  <p className="text-[11px] text-slate-400">
+                  <span className="text-xs font-medium text-[var(--foreground)]">Use Server-Side Proxy</span>
+                  <p className="text-[11px] text-[var(--desc)]">
                     Bypasses browser CORS & mixed-content blocks when connecting to HTTP servers
                   </p>
                 </div>
@@ -200,7 +237,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 checked={formData.useProxy}
                 disabled={formData.isDemoMode}
                 onChange={(e) => setFormData({ ...formData, useProxy: e.target.checked })}
-                className="w-4 h-4 accent-emerald-500 rounded cursor-pointer disabled:opacity-50"
+                className="w-4 h-4 accent-purple-500 rounded cursor-pointer disabled:opacity-50"
               />
             </div>
 
@@ -210,7 +247,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 type="button"
                 onClick={handleTestConnection}
                 disabled={isTesting}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-750 transition cursor-pointer disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--accent)] px-3.5 py-2 text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--hover)] transition cursor-pointer disabled:opacity-50"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isTesting ? 'animate-spin' : ''}`} />
                 <span>Test Connection</span>
@@ -219,7 +256,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {testResult && (
                 <div
                   className={`flex items-center gap-1.5 text-xs ${
-                    testResult.ok ? 'text-emerald-400' : 'text-rose-400'
+                    testResult.ok ? 'text-green-500' : 'text-[var(--destructive)]'
                   }`}
                 >
                   {testResult.ok ? (
@@ -234,41 +271,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Sync & Outbox */}
-          <div className="space-y-3 pt-3 border-t border-slate-800">
+          <div className="space-y-3 pt-3 border-t border-[var(--border)]">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--desc)]">
                 Sync & Offline Outbox
               </h3>
               <button
                 type="button"
                 onClick={() => setShowQueue(!showQueue)}
-                className="text-xs text-emerald-400 hover:underline cursor-pointer"
+                className="text-xs text-[var(--secondary)] hover:underline cursor-pointer"
               >
                 {showQueue ? 'Hide Queue' : `View Queue (${queueItems.length})`}
               </button>
             </div>
 
             {showQueue && (
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 max-h-40 overflow-y-auto space-y-1.5 text-xs">
+              <div className="p-3 rounded-xl bg-[var(--accent)] border border-[var(--border)] max-h-40 overflow-y-auto space-y-1.5 text-xs">
                 {queueItems.length === 0 ? (
-                  <p className="text-slate-500 italic text-center py-2">
+                  <p className="text-[var(--desc)] italic text-center py-2">
                     Outbox is empty. All local edits are synced!
                   </p>
                 ) : (
                   queueItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800 text-[11px]"
+                      className="flex items-center justify-between p-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-[11px]"
                     >
                       <div className="flex items-center gap-2 truncate">
-                        <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold text-[10px]">
+                        <span className="px-1.5 py-0.5 rounded bg-[var(--accent)] text-[var(--secondary)] font-mono font-bold text-[10px]">
                           {item.action}
                         </span>
-                        <span className="text-slate-300 truncate font-mono">
+                        <span className="text-[var(--foreground)] truncate font-mono">
                           Note: {item.noteId.slice(0, 10)}...
                         </span>
                       </div>
-                      <span className="text-slate-500 shrink-0">
+                      <span className="text-[var(--desc)] shrink-0">
                         Retries: {item.retries}
                       </span>
                     </div>
@@ -279,15 +316,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Database className="w-4 h-4 text-slate-400" />
-                <span className="text-xs text-slate-300">
+                <Database className="w-4 h-4 text-[var(--desc)]" />
+                <span className="text-xs text-[var(--foreground)]">
                   {notes.length} note(s) in local IndexedDB
                 </span>
               </div>
               <button
                 type="button"
                 onClick={onForceSync}
-                className="text-xs font-medium text-emerald-400 hover:text-emerald-300 cursor-pointer"
+                className="text-xs font-medium text-[var(--secondary)] hover:underline cursor-pointer"
               >
                 Force Sync Now
               </button>
@@ -295,15 +332,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Backup & Data Reset */}
-          <div className="space-y-3 pt-3 border-t border-slate-800">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <div className="space-y-3 pt-3 border-t border-[var(--border)]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--desc)]">
               Data & Backup
             </h3>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleExportBackup}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-750 transition cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--accent)] px-3 py-1.5 text-xs text-[var(--foreground)] hover:bg-[var(--hover)] transition cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Export JSON Backup</span>
@@ -318,28 +355,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     onClose();
                   }
                 }}
-                className="flex items-center gap-1.5 rounded-xl border border-rose-900/40 bg-rose-950/20 px-3 py-1.5 text-xs text-rose-300 hover:bg-rose-950/40 transition cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl border border-[var(--destructive)] px-3 py-1.5 text-xs text-[var(--destructive)] hover:bg-[var(--hover)] transition cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Reset Demo Data</span>
               </button>
             </div>
           </div>
+
+          {/* Version */}
+          <div className="space-y-2 pt-3 border-t border-[var(--border)]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--desc)]">
+              About
+            </h3>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-[var(--desc)]">
+                Blinko Offline Client{' '}
+                <span className="font-mono text-[var(--foreground)]">v{APP_VERSION}</span>
+              </span>
+              <a
+                href={RELEASES_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--secondary)] hover:underline inline-flex items-center gap-0.5"
+              >
+                Check for updates <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-800 bg-slate-900/60">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[var(--border)]">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 transition cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-medium text-[var(--foreground)] hover:bg-[var(--hover)] transition cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs transition cursor-pointer active:scale-95 shadow-md shadow-emerald-500/20"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold text-xs transition cursor-pointer active:scale-95"
           >
             {saveSuccess ? (
               <>

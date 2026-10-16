@@ -16,7 +16,7 @@ const DEFAULT_CONFIG: AppConfig = {
   isDemoMode: true, // Default to demo mode so the app works immediately out of the box
   autoSync: true,
   syncIntervalSec: 20,
-  theme: 'dark',
+  theme: 'system',
 };
 
 const SEED_NOTES: BlinkoNote[] = [

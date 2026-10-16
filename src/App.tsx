@@ -84,6 +84,23 @@ export default function App() {
     };
   }, [refreshNotes]);
 
+  // Apply light/dark theme like the official Blinko web client (class strategy)
+  useEffect(() => {
+    const root = document.documentElement;
+    const applyTheme = (theme: AppConfig['theme']) => {
+      const dark =
+        theme === 'dark' ||
+        (theme === 'system' &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches);
+      root.classList.toggle('dark', dark);
+    };
+    applyTheme(config?.theme ?? 'system');
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => applyTheme(config?.theme ?? 'system');
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, [config?.theme]);
+
   // Keyboard shortcut '/' to focus search
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -257,7 +274,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[var(--secondbackground)] text-[var(--foreground)] flex flex-col font-sans">
       {/* Top Header */}
       <Header
         syncState={syncState}
@@ -272,7 +289,7 @@ export default function App() {
       {/* Main Container */}
       <div className="flex-1 max-w-7xl w-full mx-auto flex">
         {/* Desktop Sidebar */}
-        <div className="hidden lg:block w-72 shrink-0 border-r border-slate-800/80 sticky top-[57px] h-[calc(100vh-57px)] overflow-y-auto">
+        <div className="hidden lg:block w-72 shrink-0 bg-[var(--background)] border-r border-[var(--border)] sticky top-[57px] h-[calc(100vh-57px)] overflow-y-auto">
           <Sidebar
             currentFilter={currentFilter}
             onFilterChange={(f) => {
@@ -295,11 +312,11 @@ export default function App() {
               className="fixed inset-0 bg-black/60 backdrop-blur-xs"
               onClick={() => setSidebarOpen(false)}
             />
-            <div className="relative w-72 max-w-xs bg-slate-950 border-r border-slate-800 h-full overflow-y-auto z-50">
-              <div className="flex justify-end p-2 border-b border-slate-800">
+            <div className="relative w-72 max-w-xs bg-[var(--background)] border-r border-[var(--border)] h-full overflow-y-auto z-50">
+              <div className="flex justify-end p-2 border-b border-[var(--border)]">
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-white"
+                  className="p-1.5 rounded-lg text-[var(--desc)] hover:text-[var(--foreground)] hover:bg-[var(--hover)]"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -341,25 +358,26 @@ export default function App() {
           <div className="flex items-center justify-between pt-2">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-slate-100">
+                <span className="w-1 self-stretch rounded-full bg-[var(--primary)]" />
+                <h1 className="text-lg font-black text-[var(--foreground)]">
                   {filterTitles[currentFilter]?.title || 'Notes'}
                 </h1>
                 {selectedTag && (
-                  <span className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  <span className="blinko-tag flex items-center gap-1 font-semibold">
                     #{selectedTag}
                     <button
                       onClick={() => setSelectedTag(null)}
-                      className="hover:text-emerald-200 ml-0.5 cursor-pointer"
+                      className="hover:opacity-70 ml-0.5 cursor-pointer"
                     >
                       ✕
                     </button>
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[var(--desc)]">
                 {searchText ? (
                   <span>
-                    Searching for &ldquo;<span className="text-emerald-400">{searchText}</span>&rdquo; (
+                    Searching for &ldquo;<span className="text-[var(--secondary)]">{searchText}</span>&rdquo; (
                     {filteredNotes.length} results)
                   </span>
                 ) : (
@@ -368,20 +386,20 @@ export default function App() {
               </p>
             </div>
 
-            <div className="text-xs text-slate-500 font-medium">
+            <div className="text-xs text-[var(--desc)] font-medium">
               {filteredNotes.length} {filteredNotes.length === 1 ? 'note' : 'notes'}
             </div>
           </div>
 
           {/* Notes Grid */}
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-500 gap-3">
-              <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+            <div className="flex flex-col items-center justify-center py-16 text-[var(--desc)] gap-3">
+              <div className="w-8 h-8 rounded-full border-2 border-[var(--secondary)] border-t-transparent animate-spin" />
               <p className="text-xs">Loading local IndexedDB...</p>
             </div>
           ) : filteredNotes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 space-y-3">
-              <div className="p-3 rounded-2xl bg-slate-800/80 text-emerald-400">
+            <div className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-[var(--radius)] border border-dashed border-[var(--border)] bg-[var(--background)] space-y-3">
+              <div className="p-3 rounded-2xl bg-[var(--accent)] text-[var(--secondary)]">
                 {currentFilter === 'trash' ? (
                   <Inbox className="w-6 h-6" />
                 ) : currentFilter === 'pinned' ? (
@@ -391,7 +409,7 @@ export default function App() {
                 )}
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-slate-200">
+                <h3 className="text-sm font-semibold text-[var(--foreground)]">
                   {searchText
                     ? 'No matching notes found'
                     : selectedTag
@@ -404,7 +422,7 @@ export default function App() {
                     ? 'No archived notes'
                     : 'Capture your first thought'}
                 </h3>
-                <p className="text-xs text-slate-400 max-w-sm">
+                <p className="text-xs text-[var(--desc)] max-w-sm">
                   {searchText
                     ? 'Try adjusting your search keywords or clearing active tag filters.'
                     : currentFilter === 'trash'
@@ -414,7 +432,7 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="columns-1 md:columns-2 gap-2.5 [&>*]:mb-2.5">
               {filteredNotes.map((note) => (
                 <NoteCard
                   key={note.id}
