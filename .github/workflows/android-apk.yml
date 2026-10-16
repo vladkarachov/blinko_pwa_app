@@ -14,9 +14,6 @@ permissions:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: blinko-pwa
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,6 +50,9 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Typecheck
+        run: bunx tsc --noEmit
+
       - name: Build web assets
         run: bun run build
 
@@ -60,10 +60,8 @@ jobs:
         run: bunx cap sync android
 
       - name: Build debug APK
-        working-directory: blinko-pwa/android
+        working-directory: android
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           echo "VERSION_CODE=$VERSION_CODE VERSION_NAME=$VERSION_NAME"
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
@@ -78,11 +76,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: blinko-pwa-${{ env.VERSION }}
-          path: blinko-pwa/blinko_pwa_${{ env.VERSION }}.apk
+          path: blinko_pwa_${{ env.VERSION }}.apk
 
       - name: Publish GitHub Release (tags only)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: blinko-pwa/blinko_pwa_${{ env.VERSION }}.apk
+          files: blinko_pwa_${{ env.VERSION }}.apk
           generate_release_notes: true
