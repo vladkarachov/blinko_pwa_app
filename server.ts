@@ -197,13 +197,31 @@ app.post('/api/mock/v1/tag/list', (_req: Request, res: Response) => {
   });
 });
 
+// Alias matching the real Blinko shape: GET /api/v1/tags/list (plural).
+// Keeps demo mode working with the fixed client without a POST body.
+app.get(['/api/mock/v1/tags/list', '/api/mock/api/v1/tags/list'], (_req: Request, res: Response) => {
+  const tagCounts: Record<string, number> = {};
+  for (const n of mockNotes) {
+    if (n.isTrash) continue;
+    for (const t of n.tags) {
+      tagCounts[t] = (tagCounts[t] || 0) + 1;
+    }
+  }
+  const items = Object.entries(tagCounts).map(([name, count]) => ({
+    name,
+    count,
+  }));
+  res.json({ code: 0, data: items, message: 'Success' });
+});
+
 // Proxy endpoint for user-configured Blinko server
-// Bypasses browser CORS and mixed-content issues for self-hosted instances
-app.post('/api/blinko/proxy', async (req: Request, res: Response) => {
+// Bypasses browser CORS and mixed-content issues for self-hosted instances.
+// Real Blinko OpenAPI lives under /api/v1/... (e.g. POST /api/v1/note/list).
+app.all('/api/blinko/proxy', async (req: Request, res: Response) => {
   const targetBaseUrl = req.headers['x-blinko-url'] as string;
   const token = req.headers['authorization'] as string;
   const targetPath = (req.headers['x-blinko-path'] as string) || '/api/v1/note/list';
-  const method = (req.headers['x-blinko-method'] as string) || 'POST';
+  const method = ((req.headers['x-blinko-method'] as string) || req.method || 'POST').toUpperCase();
 
   if (!targetBaseUrl) {
     return res.status(400).json({
@@ -214,7 +232,11 @@ app.post('/api/blinko/proxy', async (req: Request, res: Response) => {
   // Sanitize base URL
   const cleanBase = targetBaseUrl.replace(/\/+$/, '');
   const cleanPath = targetPath.startsWith('/') ? targetPath : `/${targetPath}`;
-  const fullUrl = `${cleanBase}${cleanPath}`;
+  // Forward query string for GET requests (e.g. tag list filters)
+  const querySuffix = method === 'GET' && req.url.includes('?')
+    ? req.url.substring(req.url.indexOf('?'))
+    : '';
+  const fullUrl = `${cleanBase}${cleanPath}${querySuffix}`;
 
   try {
     const fetchHeaders: Record<string, string> = {

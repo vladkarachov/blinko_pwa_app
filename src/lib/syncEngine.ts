@@ -1,6 +1,7 @@
 import {
   apiDeleteNotes,
   apiFetchNotes,
+  apiRestoreNotes,
   apiTrashNotes,
   apiUpsertNote,
 } from './blinkoClient';
@@ -183,17 +184,17 @@ class SyncEngine {
               await saveNote(localNote);
 
               const remoteResult = await apiUpsertNote(config, {
-                id: localNote.remoteId || (localNote.id.startsWith('seed-') ? undefined : localNote.id),
+                remoteId: localNote.remoteId ?? localNote.id,
                 content: localNote.content,
                 type: localNote.type,
-                tags: localNote.tags,
               });
 
-              // Mark as synced with remote ID if returned
+              // Mark as synced with numeric remote ID if returned
               localNote.syncStatus = 'synced';
               localNote.syncError = undefined;
-              if (remoteResult && remoteResult.id) {
-                localNote.remoteId = remoteResult.id;
+              if (remoteResult) {
+                const rid = remoteResult.remoteId ?? remoteResult.id;
+                if (rid !== undefined) localNote.remoteId = rid;
               }
               await saveNote(localNote);
               await removeQueueItem(item.id);
@@ -203,9 +204,12 @@ class SyncEngine {
               await removeQueueItem(item.id);
             }
           } else if (item.action === 'TRASH' || item.action === 'RESTORE') {
-            const isTrash = item.action === 'TRASH';
-            const targetId = localNote?.remoteId || item.noteId;
-            await apiTrashNotes(config, [targetId], isTrash);
+            const targetId = localNote?.remoteId ?? item.noteId;
+            if (item.action === 'TRASH') {
+              await apiTrashNotes(config, [targetId], true);
+            } else {
+              await apiRestoreNotes(config, [targetId]);
+            }
             if (localNote) {
               localNote.syncStatus = 'synced';
               await saveNote(localNote);
@@ -235,32 +239,22 @@ class SyncEngine {
 
       await this.updatePendingCount();
 
-      // Step 2: Pull latest remote notes
+      // Step 2: Pull latest remote notes (apiFetchNotes already normalizes
+      // numeric ids -> "remote-<id>", isRecycle -> isTrash, isTop -> isPinned)
       try {
         const remoteList = await apiFetchNotes(config, { page: 1, size: 100 });
         const localNotes = await getAllNotes();
-        const localMap = new Map(localNotes.map((n) => [n.remoteId ? String(n.remoteId) : n.id, n]));
+        const localKey = (n: BlinkoNote) =>
+          n.remoteId !== undefined ? String(n.remoteId) : n.id;
+        const localMap = new Map(localNotes.map((n) => [localKey(n), n]));
 
         for (const remoteNote of remoteList.items) {
-          const key = String(remoteNote.id);
+          const key = remoteNote.remoteId !== undefined ? String(remoteNote.remoteId) : remoteNote.id;
           const existing = localMap.get(key);
 
           if (!existing) {
-            // New note from remote
-            const newLocal: BlinkoNote = {
-              id: `remote-${remoteNote.id}`,
-              remoteId: remoteNote.id,
-              content: remoteNote.content || '',
-              type: remoteNote.type ?? 0,
-              tags: remoteNote.tags || [],
-              isPinned: remoteNote.isPinned || false,
-              isArchived: remoteNote.isArchived || false,
-              isTrash: remoteNote.isTrash || false,
-              createdAt: remoteNote.createdAt || new Date().toISOString(),
-              updatedAt: remoteNote.updatedAt || new Date().toISOString(),
-              syncStatus: 'synced',
-            };
-            await saveNote(newLocal);
+            // New note from remote (already normalized: id "remote-<n>")
+            await saveNote({ ...remoteNote, syncStatus: 'synced' });
             pulled++;
           } else {
             // Merge conflict resolution:
@@ -277,12 +271,20 @@ class SyncEngine {
               existing.content = remoteNote.content || '';
               existing.type = remoteNote.type ?? existing.type;
               existing.tags = remoteNote.tags || existing.tags;
+              existing.isPinned = remoteNote.isPinned ?? existing.isPinned;
               existing.isArchived = remoteNote.isArchived ?? existing.isArchived;
               existing.isTrash = remoteNote.isTrash ?? existing.isTrash;
               existing.updatedAt = remoteNote.updatedAt || existing.updatedAt;
               existing.syncStatus = 'synced';
+              if (existing.remoteId === undefined && remoteNote.remoteId !== undefined) {
+                existing.remoteId = remoteNote.remoteId;
+              }
               await saveNote(existing);
               pulled++;
+            } else if (existing.remoteId === undefined && remoteNote.remoteId !== undefined) {
+              // Backfill linkage for notes pushed earlier in this same sync
+              existing.remoteId = remoteNote.remoteId;
+              await saveNote(existing);
             }
           }
         }
